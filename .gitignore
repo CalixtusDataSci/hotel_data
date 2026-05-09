@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+venv/
+.env/
+.hotel_venvs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/
+*.csv
+
+# Editor settings
+.vscode/
+*.swp
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
