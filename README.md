@@ -59,7 +59,8 @@ python scripts/clean_data.py --input data/raw/hotels.csv --output data/processed
 from scripts.clean_data import clean
 import pandas as pd
 
-raw_data = pd.read_csv('data/raw/hotels.csv')
+from scripts.project_paths import data_file
+raw_data = pd.read_csv(data_file('data','raw','hotels.csv'))
 cleaned_data = clean(raw_data)
 cleaned_data.to_csv('data/processed/cleaned_hotels.csv', index=False)
 ```

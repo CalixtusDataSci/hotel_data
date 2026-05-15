@@ -1,3 +1,26 @@
+## Contributing
+
+Run tests locally before creating PRs. Use the repository root as the working directory or use the `data_file` helper to load data reliably from notebooks and scripts.
+
+- Install dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+- Run tests:
+
+```bash
+source .hotel_venv/Scripts/activate
+pytest -q
+```
+
+- Use paths via `from scripts.project_paths import data_file` or `resolve_path`:
+
+```py
+from scripts.project_paths import data_file
+df = pd.read_csv(data_file('data','raw','hotels.csv'))
+```
 # Contributing to Hotel Data Project
 
 ## Overview
