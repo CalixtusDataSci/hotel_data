@@ -100,7 +100,10 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
         df = df[mask > 0].copy()
 
     # Trim whitespace for object columns and normalize explicit strings
-    obj_cols = df.select_dtypes(include=["object"]).columns
+    # Select string-like columns explicitly to be compatible with pandas v2/v3+
+    # include both 'string' and 'object' to avoid Pandas4Warning when only
+    # 'object' is used. This keeps behavior stable across pandas versions.
+    obj_cols = df.select_dtypes(include=["string", "object"]).columns
     for col in obj_cols:
         df[col] = df[col].astype(str).str.strip()
         df[col] = df[col].replace("nan", pd.NA)
