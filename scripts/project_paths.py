@@ -1,12 +1,17 @@
+import os
 from pathlib import Path
 from typing import Iterable
-import os
 
 
-def find_repo_root(markers: Iterable[str] = ('README.md', 'setup.py', '.git')) -> Path:
+def find_repo_root(markers: Iterable[str] | None = None) -> Path:
+    if markers is None:
+        markers = ("README.md", "setup.py", ".git")
     p = Path.cwd().resolve()
     for parent in (p, *p.parents):
-        if any((parent / m).exists() for m in markers) or (parent / 'hotels_csv.csv').exists():
+        if (
+            any((parent / m).exists() for m in markers)
+            or (parent / "hotels_csv.csv").exists()
+        ):
             return parent
     return p
 
@@ -34,5 +39,5 @@ def resolve_path(path_like) -> Path:
         return p
 
     # split on forward or backward slashes to support mixed inputs
-    parts = s.split('/') if '/' in s else s.split(os.sep)
+    parts = s.split("/") if "/" in s else s.split(os.sep)
     return root.joinpath(*parts)

@@ -4,11 +4,11 @@
 Author: Nwaeke Calixtus, Esq
 
 Usage:
-    python scripts/clean_data.py --input ../hotels.csv --output ../data/cleaned_hotels.csv
+    python scripts/clean_data.py --input ../hotels.csv \
+        --output ../data/cleaned_hotels.csv
 """
 import argparse
 import os
-import sys
 from typing import Tuple
 
 import pandas as pd
@@ -27,14 +27,14 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 
     # Parse dates
     # Parse common date fields
-    date_fields = ['reservation_status_date', 'check_in_date', 'check_out_date']
+    date_fields = ["reservation_status_date", "check_in_date", "check_out_date"]
     for df_col in date_fields:
         if df_col in df.columns:
-            df[df_col] = pd.to_datetime(df[df_col], errors='coerce')
+            df[df_col] = pd.to_datetime(df[df_col], errors="coerce")
 
     # Drop rows with invalid check-in dates if present
-    if 'check_in_date' in df.columns:
-        df = df[~df['check_in_date'].isna()].copy()
+    if "check_in_date" in df.columns:
+        df = df[~df["check_in_date"].isna()].copy()
 
     # Numeric conversions (best-effort)
     numeric_cols = [
@@ -60,17 +60,19 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
             df[c] = pd.to_numeric(df[c], errors="coerce")
 
     # Coerce generic numeric fields used in tests
-    if 'num_guests' in df.columns:
-        df['num_guests'] = pd.to_numeric(df['num_guests'], errors='coerce').fillna(0)
+    if "num_guests" in df.columns:
+        df["num_guests"] = pd.to_numeric(df["num_guests"], errors="coerce").fillna(0)
         try:
-            df['num_guests'] = df['num_guests'].astype(int)
+            df["num_guests"] = df["num_guests"].astype(int)
         except Exception:
-            df['num_guests'] = pd.to_numeric(df['num_guests'], errors='coerce').fillna(0).astype(int)
+            df["num_guests"] = (
+                pd.to_numeric(df["num_guests"], errors="coerce").fillna(0).astype(int)
+            )
 
-    if 'room_rate' in df.columns:
-        df['room_rate'] = pd.to_numeric(df['room_rate'], errors='coerce')
+    if "room_rate" in df.columns:
+        df["room_rate"] = pd.to_numeric(df["room_rate"], errors="coerce")
         # Remove negative or impossible rates
-        df.loc[df['room_rate'] < 0, 'room_rate'] = pd.NA
+        df.loc[df["room_rate"] < 0, "room_rate"] = pd.NA
 
     # Replace missing guests with 0 and coerce to int where appropriate
     for c in ("adults", "children", "babies"):
@@ -87,8 +89,9 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
         df = df[df["total_guests"] > 0].copy()
         df.drop(columns=["total_guests"], inplace=True)
     # If dataset uses `num_guests`, drop rows with zero or missing
-    if 'num_guests' in df.columns:
-        df = df[pd.to_numeric(df['num_guests'], errors='coerce') > 0].copy()
+    if "num_guests" in df.columns:
+        mask = pd.to_numeric(df["num_guests"], errors="coerce")
+        df = df[mask > 0].copy()
 
     # Trim whitespace for object columns and normalize explicit strings
     for col in df.select_dtypes(include=["object"]).columns:
@@ -100,10 +103,10 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 
     # Drop rows with critical missing values introduced during coercion
     critical_cols = []
-    if 'check_in_date' in df.columns:
-        critical_cols.append('check_in_date')
-    if 'room_rate' in df.columns:
-        critical_cols.append('room_rate')
+    if "check_in_date" in df.columns:
+        critical_cols.append("check_in_date")
+    if "room_rate" in df.columns:
+        critical_cols.append("room_rate")
     if critical_cols:
         df = df.dropna(subset=critical_cols)
 
@@ -111,7 +114,9 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main(argv: Tuple[str] = None) -> int:
-    p = argparse.ArgumentParser(description="Clean hotel booking CSV into reproducible CSV")
+    p = argparse.ArgumentParser(
+        description="Clean hotel booking CSV into reproducible CSV"
+    )
     p.add_argument("--input", "-i", required=True, help="Input CSV path")
     p.add_argument("--output", "-o", required=True, help="Output cleaned CSV path")
     args = p.parse_args(argv)

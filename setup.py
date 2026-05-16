@@ -8,20 +8,22 @@ Author: Nwaeke Calixtus, Esq
 License: MIT (see LICENSE file)
 """
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+    requirements = [
+        line.strip() for line in fh if line.strip() and not line.startswith("#")
+    ]
 
 setup(
     name="hotel-data-cleaner",
     version="1.0.0",
     author="Nwaeke Calixtus, Esq",
     author_email="calixtusnwaeke@gmail.com",
-    description="Professional hotel booking data cleaning, analysis, and ML-ready dataset preparation",
+    description=("Hotel booking data cleaning and ML-ready dataset preparation"),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/CalixtusDataSci/hotel_data",
