@@ -27,7 +27,11 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 
     # Parse dates
     # Parse common date fields
-    date_fields = ["reservation_status_date", "check_in_date", "check_out_date"]
+    date_fields = [
+        "reservation_status_date",
+        "check_in_date",
+        "check_out_date",
+    ]
     for df_col in date_fields:
         if df_col in df.columns:
             df[df_col] = pd.to_datetime(df[df_col], errors="coerce")
@@ -61,13 +65,13 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 
     # Coerce generic numeric fields used in tests
     if "num_guests" in df.columns:
-        df["num_guests"] = pd.to_numeric(df["num_guests"], errors="coerce").fillna(0)
+        tmp = pd.to_numeric(df["num_guests"], errors="coerce")
+        df["num_guests"] = tmp.fillna(0)
         try:
             df["num_guests"] = df["num_guests"].astype(int)
         except Exception:
-            df["num_guests"] = (
-                pd.to_numeric(df["num_guests"], errors="coerce").fillna(0).astype(int)
-            )
+            tmp = pd.to_numeric(df["num_guests"], errors="coerce")
+            df["num_guests"] = tmp.fillna(0).astype(int)
 
     if "room_rate" in df.columns:
         df["room_rate"] = pd.to_numeric(df["room_rate"], errors="coerce")
@@ -81,10 +85,12 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
             try:
                 df[c] = df[c].astype(int)
             except Exception:
-                df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0).astype(int)
+                tmp = pd.to_numeric(df[c], errors="coerce")
+                df[c] = tmp.fillna(0).astype(int)
 
     # Drop rows with zero total guests (likely bad records)
-    if set(("adults", "children", "babies")).issubset(df.columns):
+    guest_cols = {"adults", "children", "babies"}
+    if guest_cols.issubset(df.columns):
         df["total_guests"] = df["adults"] + df["children"] + df["babies"]
         df = df[df["total_guests"] > 0].copy()
         df.drop(columns=["total_guests"], inplace=True)
@@ -94,7 +100,8 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
         df = df[mask > 0].copy()
 
     # Trim whitespace for object columns and normalize explicit strings
-    for col in df.select_dtypes(include=["object"]).columns:
+    obj_cols = df.select_dtypes(include=["object"]).columns
+    for col in obj_cols:
         df[col] = df[col].astype(str).str.strip()
         df[col] = df[col].replace("nan", pd.NA)
 
@@ -117,8 +124,18 @@ def main(argv: Tuple[str] = None) -> int:
     p = argparse.ArgumentParser(
         description="Clean hotel booking CSV into reproducible CSV"
     )
-    p.add_argument("--input", "-i", required=True, help="Input CSV path")
-    p.add_argument("--output", "-o", required=True, help="Output cleaned CSV path")
+    p.add_argument(
+        "--input",
+        "-i",
+        required=True,
+        help="Input CSV path",
+    )
+    p.add_argument(
+        "--output",
+        "-o",
+        required=True,
+        help="Output cleaned CSV path",
+    )
     args = p.parse_args(argv)
 
     if not os.path.exists(args.input):

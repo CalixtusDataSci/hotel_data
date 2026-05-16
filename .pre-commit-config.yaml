@@ -11,3 +11,4 @@ repos:
     rev: 6.1.0
     hooks:
       - id: flake8
+        args: ["--max-line-length=88", "--exclude=.git,__pycache__,.venv,.hotel_venv,.vscode,venv"]

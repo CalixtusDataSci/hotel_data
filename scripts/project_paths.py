@@ -8,10 +8,9 @@ def find_repo_root(markers: Iterable[str] | None = None) -> Path:
         markers = ("README.md", "setup.py", ".git")
     p = Path.cwd().resolve()
     for parent in (p, *p.parents):
-        if (
-            any((parent / m).exists() for m in markers)
-            or (parent / "hotels_csv.csv").exists()
-        ):
+        has_marker = any((parent / m).exists() for m in markers)
+        has_csv = (parent / "hotels_csv.csv").exists()
+        if has_marker or has_csv:
             return parent
     return p
 
@@ -22,10 +21,14 @@ def data_file(*parts: str) -> Path:
 
 
 def resolve_path(path_like) -> Path:
-    """Resolve a path-like input to an absolute Path inside the repo when appropriate.
+    """
+    Resolve a path-like input to an absolute Path inside the repo
+    when appropriate.
 
-    - If `path_like` is an absolute path or already exists, return it as Path.
-    - If `path_like` is a simple filename or relative path, join it to repo root.
+    - If `path_like` is an absolute path or already exists,
+      return it as Path.
+    - If `path_like` is a simple filename or relative path,
+      join it to repo root.
     """
     root = find_repo_root()
     if isinstance(path_like, Path):
@@ -39,5 +42,8 @@ def resolve_path(path_like) -> Path:
         return p
 
     # split on forward or backward slashes to support mixed inputs
-    parts = s.split("/") if "/" in s else s.split(os.sep)
+    if "/" in s:
+        parts = s.split("/")
+    else:
+        parts = s.split(os.sep)
     return root.joinpath(*parts)

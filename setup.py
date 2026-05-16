@@ -14,16 +14,21 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [
-        line.strip() for line in fh if line.strip() and not line.startswith("#")
-    ]
+    requirements = []
+    for line in fh:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            continue
+        requirements.append(line)
 
 setup(
     name="hotel-data-cleaner",
     version="1.0.0",
     author="Nwaeke Calixtus, Esq",
     author_email="calixtusnwaeke@gmail.com",
-    description=("Hotel booking data cleaning and ML-ready dataset preparation"),
+    description="Hotel booking data cleaning and ML-ready dataset prep",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/CalixtusDataSci/hotel_data",

@@ -13,9 +13,9 @@ from pathlib import Path
 # Ensure scripts directory is importable before other imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-import pandas as pd
-import pytest
-from clean_data import clean
+import pandas as pd  # noqa: E402
+import pytest  # noqa: E402
+from clean_data import clean  # noqa: E402
 
 
 class TestDataCleaning:
@@ -69,7 +69,8 @@ class TestDataCleaning:
     def test_clean_removes_duplicates(self, sample_data):
         """Verify duplicates are removed based on key columns."""
         # Add a duplicate row
-        dup_data = pd.concat([sample_data, sample_data.iloc[0:1]], ignore_index=True)
+        extra = sample_data.iloc[0:1]
+        dup_data = pd.concat([sample_data, extra], ignore_index=True)
         cleaned = clean(dup_data)
         assert len(cleaned) <= len(sample_data)
 
@@ -97,14 +98,18 @@ class TestDataCleaning:
         cleaned = clean(sample_data.copy())
         # Should drop rows with invalid dates or coercion failures
         assert len(cleaned) > 0  # But should retain valid rows
-        assert (
-            cleaned.isnull().sum().sum() == 0 or len(cleaned) > 0
-        )  # Cleaned data is valid
+        nulls = cleaned.isnull().sum().sum()
+        assert (nulls == 0) or (len(cleaned) > 0)
 
     def test_clean_preserves_data_integrity(self, sample_data):
         """Verify essential columns are preserved."""
         cleaned = clean(sample_data.copy())
-        required_cols = ["hotel_id", "hotel_name", "check_in_date", "check_out_date"]
+        required_cols = [
+            "hotel_id",
+            "hotel_name",
+            "check_in_date",
+            "check_out_date",
+        ]
         assert all(col in cleaned.columns for col in required_cols)
 
     def test_clean_output_type(self, sample_data):
@@ -162,4 +167,5 @@ class TestDataQuality:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--cov=scripts", "--cov-report=html"])
+    args = [__file__, "-v", "--cov=scripts", "--cov-report=html"]
+    pytest.main(args)
